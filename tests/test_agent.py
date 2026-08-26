@@ -60,7 +60,6 @@ def test_unknown_order():
     assert "status" not in answer.lower()
 
 
-def test_missing_order_id():
     agent = SupportAgent()
 
     answer = agent.answer(
