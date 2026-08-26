@@ -1,6 +1,7 @@
 import json
 import sys
 from pathlib import Path
+from collections import defaultdict
 
 from app.agent import SupportAgent
 
@@ -74,6 +75,7 @@ def main():
     cases = data["cases"]
 
     passed = 0
+    category_results = defaultdict(lambda: [0, 0])
 
     print("=" * 70)
     print("Aster & Row — Visible Case Evaluation")
@@ -81,6 +83,8 @@ def main():
 
     for case in cases:
         case_id = case["id"]
+        category = case["category"]
+        category_results[category][1] += 1
 
         try:
             answer, failures = run_case(case)
@@ -90,20 +94,29 @@ def main():
                 for failure in failures:
                     print(f"   - {failure}")
                 print(f"   Answer: {answer}")
+
             else:
                 print(f"✅ PASS: {case_id}")
                 passed += 1
+                category_results[category][0] += 1
 
         except Exception as error:
             print(f"\n❌ ERROR: {case_id}")
             print(f"   {error}")
 
     print("\n" + "=" * 70)
+    print("CATEGORY BREAKDOWN")
+    print("=" * 70)
+
+    for category in sorted(category_results):
+        category_passed, category_total = category_results[category]
+        print(f"{category:25} {category_passed}/{category_total}")
+
+    print("=" * 70)
     print(f"RESULT: {passed}/{len(cases)} cases passed")
     print("=" * 70)
 
     return 0 if passed == len(cases) else 1
-
 
 if __name__ == "__main__":
     sys.exit(main())
