@@ -1,8 +1,8 @@
 # Aster & Row — Reliable RAG Support Agent
 
-A small, reliability-focused customer support agent for Aster & Row, a fictional ecommerce company selling bags, drinkware, and travel accessories.
+A small, reliability-focused customer support agent for **Aster & Row**, a fictional ecommerce company selling bags, drinkware, and travel accessories.
 
-The system combines retrieval over the supplied knowledge base, safe order lookup, document precedence, multi-turn conversation handling, privacy protection, prompt-injection resistance, and safe human handoff.
+The system combines knowledge-base retrieval, safe order lookup, document precedence, privacy protection, prompt-injection resistance, safe abstention, human handoff, and multi-turn conversation handling.
 
 The goal is not to build the largest possible agent. The goal is to build a small system that behaves safely and predictably on messy real-world support data.
 
@@ -10,7 +10,7 @@ The goal is not to build the largest possible agent. The goal is to build a smal
 
 ## 1. Problem
 
-The support agent is designed to handle common ecommerce support questions while avoiding unsupported claims and unsafe disclosure of internal information.
+The support agent handles common ecommerce support questions while avoiding unsupported claims and unsafe disclosure of internal information.
 
 The supplied knowledge base contains:
 
@@ -20,10 +20,11 @@ The supplied knowledge base contains:
 - Product information
 - Shipping information
 - Warranty information
+- Support escalation guidance
 
 The operational dataset contains mock order information, including both customer-safe and internal fields.
 
-The main design goals are:
+### Main Design Goals
 
 1. Reliable and grounded answers
 2. Correct document precedence
@@ -31,7 +32,8 @@ The main design goals are:
 4. Privacy protection
 5. Safe abstention when information is insufficient
 6. Human handoff when required
-7. Reliable multi-turn behavior
+7. Multi-turn conversation handling
+8. Prompt-injection resistance
 
 ---
 
@@ -42,7 +44,7 @@ The main design goals are:
                     │      User / CLI      │
                     └──────────┬───────────┘
                                │
-                               v
+                               ▼
                     ┌──────────────────────┐
                     │     SupportAgent     │
                     │      agent.py        │
@@ -50,48 +52,37 @@ The main design goals are:
                             │       │
                  ┌──────────┘       └──────────┐
                  │                             │
-                 v                             v
+                 ▼                             ▼
       ┌────────────────────┐       ┌────────────────────┐
       │ Knowledge Retrieval│       │   Order Lookup     │
       │  retrieval.py      │       │    orders.py      │
       └──────────┬─────────┘       └──────────┬─────────┘
                  │                             │
-                 v                             v
+                 ▼                             ▼
       ┌────────────────────┐       ┌────────────────────┐
       │ knowledge-base/    │       │ data/orders.json   │
       │ Markdown documents │       │                    │
       └──────────┬─────────┘       └────────────────────┘
                  │
-                 v
+                 ▼
        Safety / precedence /
        groundedness checks
                  │
-                 v
+                 ▼
        Customer-safe response
-Customer-safe response
-```
 
-### Main components
-
-```text
-app/
-├── agent.py       # Agent behavior and response routing
-├── retrieval.py   # Knowledge-base indexing and retrieval
-├── orders.py      # Safe order lookup
-└── main.py        # CLI interface
-```
-
----
-
-## 3. Technology
+## 3. Technology Stack
 
 - Python 3.13
 - Command-line interface
 - Markdown knowledge base
 - JSON operational order dataset
-- Python-based retrieval
-- OpenAI API integration
-- pytest for regression testing
+- TF-IDF retrieval
+- Cosine similarity
+- scikit-learn
+- pytest
+- python-dotenv
+- OpenAI API dependency
 
 The implementation intentionally keeps the architecture small and practical instead of introducing unnecessary production infrastructure.
 
@@ -139,4 +130,3 @@ The implementation intentionally keeps the architecture small and practical inst
 │
 └── tests/
     └── test_agent.py
-```
