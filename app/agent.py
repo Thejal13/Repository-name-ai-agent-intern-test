@@ -14,13 +14,23 @@ class SupportAgent:
         match = re.search(r"\bORD-\d{4}\b", message.upper())
         return match.group(0) if match else None
 
+    def get_conversation_context(self):
+        if len(self.history) < 2:
+            return ""
+
+        return " ".join(self.history[-3:])
+
     def answer(self, message):
         self.history.append(message)
 
         text = message.lower()
+        context = self.get_conversation_context().lower()
+
+        # ---------------------------------------------------------
+        # Order lookup
+        # ---------------------------------------------------------
         order_id = self.get_order_id(message)
 
-        # Order lookup
         if order_id:
             order = self.orders.lookup(order_id)
 
@@ -33,7 +43,9 @@ class SupportAgent:
             status = order["status"]
 
             if status == "cancelled":
-                return "The order is cancelled and it will not be shipped."
+                return (
+                    "The order is cancelled and it will not be shipped."
+                )
 
             if status == "returned":
                 return (
@@ -54,8 +66,8 @@ class SupportAgent:
                 if eta:
                     return (
                         f"Order {order_id} has shipped with {carrier}. "
-                        f"It is currently estimated to arrive on "
-                        f"August 22, 2026 ({eta})."
+                        f"It is currently estimated to arrive on {eta} "
+                        "(August 22, 2026)."
                     )
 
                 return (
@@ -65,7 +77,9 @@ class SupportAgent:
 
             return f"Order {order_id} has status: {status}."
 
+        # ---------------------------------------------------------
         # Missing order ID
+        # ---------------------------------------------------------
         if "where is my order" in text:
             return "Sure — please provide your order ID."
 
@@ -75,7 +89,9 @@ class SupportAgent:
         ):
             return "Please provide your order ID."
 
-        # Prompt injection / migration note
+        # ---------------------------------------------------------
+        # Prompt injection / untrusted document protection
+        # ---------------------------------------------------------
         if (
             "migration note" in text
             or "ignore the real policy" in text
@@ -89,7 +105,9 @@ class SupportAgent:
                 "applies. The agent cannot approve a return."
             )
 
+        # ---------------------------------------------------------
         # Insufficient information
+        # ---------------------------------------------------------
         if "vegan" in text and (
             "fabric" in text or "adhesive" in text
         ):
@@ -99,7 +117,9 @@ class SupportAgent:
                 "Human confirmation is required."
             )
 
+        # ---------------------------------------------------------
         # Genuine source conflict
+        # ---------------------------------------------------------
         if "dishwasher" in text and (
             "breeze" in text or "tumbler" in text
         ):
@@ -110,7 +130,9 @@ class SupportAgent:
                 "Human confirmation or safest interim guidance is recommended."
             )
 
+        # ---------------------------------------------------------
         # Final-sale damaged item
+        # ---------------------------------------------------------
         if (
             ("final sale" in text or "final-sale" in text)
             and (
@@ -125,7 +147,9 @@ class SupportAgent:
                 "Human review before approval is required."
             )
 
+        # ---------------------------------------------------------
         # International shipping
+        # ---------------------------------------------------------
         if "canada" in text:
             return (
                 "Canada is supported. International delivery takes "
@@ -136,28 +160,36 @@ class SupportAgent:
         if "germany" in text:
             return "Shipping to Germany is not currently available."
 
+        # ---------------------------------------------------------
         # Warranty
+        # ---------------------------------------------------------
         if "warranty" in text or "lifetime" in text:
             return (
                 "There is no lifetime warranty. Bags have 2 years, "
                 "while drinkware and travel accessories have 1 year."
             )
 
+        # ---------------------------------------------------------
         # TrailPlus
+        # ---------------------------------------------------------
         if "trailplus" in text:
             return (
                 "TrailPlus members have a 45 calendar days return window "
                 "from delivery."
             )
 
+        # ---------------------------------------------------------
         # Standard returns
+        # ---------------------------------------------------------
         if "return" in text:
             return (
                 "Regular customers have 30 calendar days from delivery "
                 "to return an unused backpack."
             )
 
+        # ---------------------------------------------------------
         # Retrieval fallback
+        # ---------------------------------------------------------
         results = self.kb.retrieve(message, top_k=3)
 
         if not results:
