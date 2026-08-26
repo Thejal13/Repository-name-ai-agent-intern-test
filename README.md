@@ -69,6 +69,7 @@ The operational dataset contains mock order information, including both customer
        groundedness checks
                  │
                  ▼
+```text
        Customer-safe response
 
 ## 3. Technology Stack
@@ -130,6 +131,8 @@ The implementation intentionally keeps the architecture small and practical inst
 │
 └── tests/
     └── test_agent.py
+
+```markdown
 ---
 
 ## Demo
