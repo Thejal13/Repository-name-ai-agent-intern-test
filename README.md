@@ -36,7 +36,6 @@ The operational dataset contains mock order information, including both customer
 8. Prompt-injection resistance
 
 ---
-
 ## 2. Architecture
 
 ```text
@@ -69,8 +68,8 @@ The operational dataset contains mock order information, including both customer
        groundedness checks
                  │
                  ▼
-```text
        Customer-safe response
+```
 
 ## 3. Technology Stack
 
@@ -131,13 +130,12 @@ The implementation intentionally keeps the architecture small and practical inst
 │
 └── tests/
     └── test_agent.py
+```
 
-```markdown
 ---
 
 ## Demo
 
-A short demonstration of the Aster & Row support agent handling policy retrieval,
-order lookup, missing order information, damaged-item escalation, and insufficient information.
+A short demonstration of the Aster & Row support agent handling policy retrieval, order lookup, missing order information, damaged-item escalation, and insufficient information.
 
 [▶️ Watch the Aster & Row Support Agent Demo](demo/ai_agent_demo.mp4)
