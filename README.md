@@ -130,3 +130,11 @@ The implementation intentionally keeps the architecture small and practical inst
 │
 └── tests/
     └── test_agent.py
+---
+
+## Demo
+
+A short demonstration of the Aster & Row support agent handling policy retrieval,
+order lookup, missing order information, damaged-item escalation, and insufficient information.
+
+[▶️ Watch the Aster & Row Support Agent Demo](demo/ai_agent_demo.mp4)
