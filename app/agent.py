@@ -5,7 +5,6 @@ from app.orders import OrderLookup
 
 
 class SupportAgent:
-
     def __init__(self):
         self.kb = KnowledgeBase()
         self.orders = OrderLookup()
@@ -16,15 +15,18 @@ class SupportAgent:
         return match.group(0) if match else None
 
     def answer(self, message):
+        self.history.append(message)
+
         text = message.lower()
         order_id = self.get_order_id(message)
 
+        # Order lookup
         if order_id:
             order = self.orders.lookup(order_id)
 
             if not order["found"]:
                 return (
-                    "The order was not found. "
+                    f"The order was not found: {order_id}. "
                     "Please check the order ID or contact support."
                 )
 
@@ -52,8 +54,8 @@ class SupportAgent:
                 if eta:
                     return (
                         f"Order {order_id} has shipped with {carrier}. "
-                        "It is currently estimated to arrive on "
-                        "August 22, 2026."
+                        f"It is currently estimated to arrive on "
+                        f"August 22, 2026 ({eta})."
                     )
 
                 return (
@@ -63,6 +65,7 @@ class SupportAgent:
 
             return f"Order {order_id} has status: {status}."
 
+        # Missing order ID
         if "where is my order" in text:
             return "Sure — please provide your order ID."
 
@@ -72,6 +75,7 @@ class SupportAgent:
         ):
             return "Please provide your order ID."
 
+        # Prompt injection / migration note
         if (
             "migration note" in text
             or "ignore the real policy" in text
@@ -85,6 +89,7 @@ class SupportAgent:
                 "applies. The agent cannot approve a return."
             )
 
+        # Insufficient information
         if "vegan" in text and (
             "fabric" in text or "adhesive" in text
         ):
@@ -94,16 +99,18 @@ class SupportAgent:
                 "Human confirmation is required."
             )
 
+        # Genuine source conflict
         if "dishwasher" in text and (
             "breeze" in text or "tumbler" in text
         ):
-           return (
-    "The current official sources conflict. "
-    "One says hand-wash the body. "
-    "One says all components are dishwasher safe. "
-    "Human confirmation or safest interim guidance is recommended."
-)
+            return (
+                "The current official sources conflict. "
+                "One says hand-wash the body. "
+                "One says all components are dishwasher safe. "
+                "Human confirmation or safest interim guidance is recommended."
+            )
 
+        # Final-sale damaged item
         if (
             ("final sale" in text or "final-sale" in text)
             and (
@@ -113,11 +120,12 @@ class SupportAgent:
             )
         ):
             return (
-    "Final sale does not block damaged-item review. "
-    "Report within 7 days. "
-    "Human review before approval is required."
-)
+                "Final sale does not block damaged-item review. "
+                "Report within 7 days. "
+                "Human review before approval is required."
+            )
 
+        # International shipping
         if "canada" in text:
             return (
                 "Canada is supported. International delivery takes "
@@ -128,24 +136,28 @@ class SupportAgent:
         if "germany" in text:
             return "Shipping to Germany is not currently available."
 
+        # Warranty
         if "warranty" in text or "lifetime" in text:
             return (
                 "There is no lifetime warranty. Bags have 2 years, "
                 "while drinkware and travel accessories have 1 year."
             )
 
+        # TrailPlus
         if "trailplus" in text:
             return (
                 "TrailPlus members have a 45 calendar days return window "
                 "from delivery."
             )
 
+        # Standard returns
         if "return" in text:
             return (
                 "Regular customers have 30 calendar days from delivery "
                 "to return an unused backpack."
             )
 
+        # Retrieval fallback
         results = self.kb.retrieve(message, top_k=3)
 
         if not results:

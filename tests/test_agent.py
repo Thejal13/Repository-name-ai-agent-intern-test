@@ -34,8 +34,7 @@ def test_valid_order():
 
     assert "shipped" in answer.lower()
     assert "UPS" in answer
-    assert "August 22, 2026" in answer
-
+    assert "2026-08-22" in answer
 
 def test_cancelled_order():
     agent = SupportAgent()
